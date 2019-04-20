@@ -1,7 +1,7 @@
 import os
-import rsa
-from cryptlib import (Zip,Aes,Rsa,Sha1)
-from config import pi_url
+import time
+from cryptlib import Zip,AES,RSA,SHA1,Disi
+
 
 class Cryptbox(object):
     pass
