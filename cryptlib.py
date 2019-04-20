@@ -1,4 +1,13 @@
-from config import *
+import os
+try:
+    import rsa
+except ModuleNotFoundError:
+    os.system('pip3 install rsa')
+import time
+import zipfile
+from config import text_path,de_text_path,\
+    zip_path,en_text_path,\
+    del_text,Create_AESkey
 
 class Zip(object):
 
@@ -21,9 +30,9 @@ class Zip(object):
 
 class AES(object):
 
-    def __init__(self,text_name,password=pwd):
+    def __init__(self,text_name):
         self.text=text_name
-        self.password=pwd
+        self.password=Create_AESkey()
 
     def encrypt(self):
         # 对称加密
@@ -53,7 +62,6 @@ class AES(object):
                 pass
         elif del_text == 1:
             pass
-
 
 class SHA1(object):
     # 计算sha1
@@ -131,7 +139,6 @@ class Disi(object):
     def sign(self):
         #签名
         privkey = './key/privkey.key'  # 私钥
-
         with open(privkey, "r")as f1:
             priv_key = rsa.PrivateKey.load_pkcs1(f1.read().encode())
 
@@ -158,6 +165,7 @@ class Disi(object):
             print('验证成功,使用的哈希算法是：%s'%ver)
         except Exception as e:
             print(e)
+# 166-37=129
 
 #info_time=os.stat(__file__)
 #a=time.localtime(info_time.st_mtime)
