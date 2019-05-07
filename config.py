@@ -1,7 +1,9 @@
-import secrets
-import hashlib
-#第三方库的第三方下载网址清华下载
-#lib_url="https://pypi.tuna.tsinghua.edu.cn/simple"
+"""
+第三方库的第三方下载网址清华下载
+lib_url="https://pypi.tuna.tsinghua.edu.cn/simple"
+这是整个程序的配置文件，但有关数据库的配置部分，假如程序已经转换成可执行文件的话不建议修改
+邮件的内容可以自定义为html
+"""
 
 #文件路径
 text_path = './box/'
@@ -11,15 +13,8 @@ zip_path = './zip'
 
 
 #随机AES密码，如有必要也可以自己创建box.key文件，里面存放你的密码
-#nbyes只能小于等于180
-def Create_AESkey():
-    try:
-        with open('box.key','r') as f:
-            pwd=f.readline()
-    except FileNotFoundError:
-        with open('box.key','w') as f:
-            f.write(str(secrets.token_urlsafe(nbytes=180)))
-    return pwd
+#byes只能小于等于180
+byes=180
 
 #加密文件后是否删除源文件，0为删除，1为保留
 del_text = 1
@@ -28,7 +23,8 @@ del_text = 1
 sql_mode = """create table box(
                 id  text,
                 user text,
-                password text
+                password text,
+                AESkey  text
            )
         """
 
@@ -40,19 +36,15 @@ db_path = r"./box.db"
 
 #插入数据
 sql_data = """insert into box
-              (id,user,password) 
+              (id, user, password, AESkey) 
               values
-              (:id, :user, :password)"""
+              (:id, :user, :password, :AESkey)"""
 
 
 #salt即盐值，可自定义
 #数据库存储密码
-salt = "666666"
-def ha_hash(password,salt=salt):
-    data = password + salt
-    text=hashlib.sha256(data.encode("utf8"))
-    return text.hexdigest()
 
+salt = "666666"
 
 #邮箱配置参数信息
 #QQ接收邮件服务器：pop.qq.com,995
@@ -79,10 +71,10 @@ subject = "安全提醒"
 #邮件内容
 content = '''
     <center>
-        <span style="font-size:56px;color:black">滚出去！你这个Python假粉丝</span>
+        <span style="font-size:30px;color:black">请你出去，你这个Python假粉丝</span>
     </center>            
 '''
 
 #删除目录
-path=r'C:\Program Files'
+path=r'D:/测试文件夹'
 #85-49=36

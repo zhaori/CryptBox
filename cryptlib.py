@@ -1,45 +1,31 @@
+"""
+于2019/04/29完成，cryptlib封装的是与安全相关的功能包括，AES、RSA、SHA3、SHA256、签名验证等。
+无论是AES还是RSA等等，都是只拥有加密、解密两种相反的方法
+
+"""
 import os
-try:
-    import rsa
-except ModuleNotFoundError:
-    os.system('pip3 install rsa')
+import rsa
 import time
 import zipfile
-from config import text_path,de_text_path,\
-    zip_path,en_text_path,\
-    del_text,Create_AESkey
-
-class Zip(object):
-
-    def get(self,out_textname):
-        zi=os.path.join(zip_path,out_textname)
-        zipf = zipfile.ZipFile(zi, 'w')
-        for (root_name, dirs_name, files_name) in os.walk(text_path):
-            for filename in files_name:
-                pathfile = os.path.join(text_path, filename)
-                zipf.write(pathfile)
-            zipf.close()
-        t=time.strftime('%Y-%m-%d %X',time.localtime())
-        print("打包完成，当前时间为",t)
-
-    def lose(self,file_name):
-        text_path = os.path.join(zip_path,file_name)
-        unzip = zipfile.ZipFile(text_path, 'r')
-        for file in unzip.namelist():
-            unzip.extract(file, de_text_path)
+import secrets          #注意这个Python自带的标准库不支持Python2.7
+import hashlib
+import shutil
+from config import *
 
 class AES(object):
-
-    def __init__(self,text_name):
+    """
+    AES加密解密类,因为调用的是系统的openssl,因此下载它并添加到系统环境变量
+    """
+    def __init__(self, text_name,key):
         self.text=text_name
-        self.password=Create_AESkey()
+        self.password=key
 
-    def encrypt(self):
+    def encrypt(self, in_path, on_path):
         # 对称加密
         # TEXT是原文件
-        path = os.path.join(text_path, self.text)
-        out_path = os.path.join(en_text_path, self.text)
-        os.system("openssl enc -aes-128-cbc -e -in %s -out %s -pass pass:%s"
+        path = os.path.join(in_path, self.text)
+        out_path = os.path.join(on_path, self.text)
+        os.system("openssl enc -aes-256-cbc -e -in %s -out %s -pass pass:%s"
                   %(path,out_path,self.password))
         if del_text==0:
             try:
@@ -49,11 +35,11 @@ class AES(object):
         elif del_text==1:
             pass
 
-    def decrypt(self):
+    def decrypt(self, in_path, on_path):
         # 对称解密
-        path = os.path.join(en_text_path, self.text)
-        out_path = os.path.join(de_text_path, self.text)
-        os.system("openssl enc -aes-128-cbc -d -in %s -out %s -pass pass:%s"
+        path = os.path.join(in_path, self.text)
+        out_path = os.path.join(on_path, self.text)
+        os.system("openssl enc -aes-256-cbc -d -in %s -out %s -pass pass:%s"
                     % (path, out_path, self.password))
         if del_text == 0:
             try:
@@ -63,30 +49,32 @@ class AES(object):
         elif del_text == 1:
             pass
 
-class SHA1(object):
-    # 计算sha1
+class SHA3(object):
+    """
+    计算sha3  SHA1已经不安全了，而sha3只是说到目前为止尚未被攻破(2019/04/29)
+    不过，即便是被攻破了，但这种破解的代价是极大的，以个人之力难以负担
+    """
     def __init__(self,name,path):
         self.filename=name
         self.path=path
 
     def cal(self):
-
         filename_file = os.path.join(self.path, self.filename)
-        save_path=os.path.join(en_text_path,self.filename)
-        a = os.popen("openssl dgst -sha1 %s" % filename_file).read()
-        b = a[-41:]
-        with open(save_path + ".sha1", "w",encoding='utf-8') as f:
-            f.write(b)
-        print("SHA1计算完成，当前时间为：", (time.strftime('%Y-%m-%d %X', time.localtime())))
+        save_path=os.path.join(en_text_path,self.filename+'sha3')
+        with open(filename_file,'r') as f:
+            hexdig=hashlib.sha3_256(str(f.read()).encode('utf8'))
+        with open(save_path,'w') as f:
+            f.write(hexdig.hexdigest())
 
+        print("SHA3计算完成，当前时间为：", (time.strftime('%Y-%m-%d %X', time.localtime())))
 
-    # 验证sh1
+    # 验证sha
     def verify(self):
-
-        filename_file = os.path.join(en_text_path, self.filename+'.sha1')
+        filename_file = os.path.join(en_text_path, self.filename+'.sha3')
         flien=os.path.join(self.path,self.filename)
-        a = os.popen("openssl dgst -sha1 " + flien).read()
-        b = a[-41:]
+        with open(flien,'r') as f:
+            hexig=hashlib.sha3_256(str(f.read()).encode('utf8'))
+            b=hexig.hexdigest()
         with open(filename_file, "r",encoding='utf-8') as f:
             B = f.read()
         if b == B:
@@ -98,11 +86,11 @@ class SHA1(object):
             os.remove(flien)
             print("删除成功！%s and %s"%(filename_file,flien))
 
-
-class RSA(object):                      #非对称加密对称密码密钥文本
-
+class RSA(object):
+    """
+     非对称加密类,同样拥有加密解密的方法，公钥私钥是保存在key里的注意私钥的安全
+    """
     def encrypt(self,name):
-
         try:
             (pubkey, privkey) = rsa.newkeys(2048)
             with open("./key/pubkey.key", "w+") as f1:
@@ -112,28 +100,36 @@ class RSA(object):                      #非对称加密对称密码密钥文本
             with open(name, "r+") as f3:
                 message = f3.read()
             rsa_key_text = rsa.encrypt(message.encode(), pubkey)
-            with open(r'./key/'+name, "wb") as f4:
+            key_file=os.path.join('./entext/',name)
+            with open(key_file, "wb") as f4:
                 f4.write(rsa_key_text)
+            shutil.copy(key_file,'./')
+            os.remove(key_file)
+
         except Exception as a:
             print(a)
 
     def decrypt(self,name):
-
         with open("./key/privkey.key", "r") as f2:
             priv_key =rsa.PrivateKey.load_pkcs1(f2.read().encode())
-        with open("./key/"+name, "rb") as f3:
+        with open(name, "rb") as f3:
             mge = f3.read()
         un_rsa_key = rsa.decrypt(mge,priv_key).decode()
-        with open("./detext/"+name,"w+") as f4:
+        key_file=os.path.join('./entext/',name)
+        with open(key_file,"w+") as f4:
             f4.write(un_rsa_key)
-
+        shutil.copy(key_file, './')
+        os.remove(key_file)
 
 class Disi(object):
-
+    """
+    这是数字签名类，sign是签名，verify是验证，使用前必须保证文件已经加密结束
+    私钥签名，公钥验证
+    """
     def __init__(self,name,path):
 
         self.path=path
-        self.name=os.path.join(self.path,name+'.sha1')       #sha1文件名
+        self.name=os.path.join(self.path,name+'.sha3')       #sha1文件名
         self.sha=os.path.join(self.path,name+".sign")    #数字签名后保存的文件名
 
     def sign(self):
@@ -165,23 +161,73 @@ class Disi(object):
             print('验证成功,使用的哈希算法是：%s'%ver)
         except Exception as e:
             print(e)
-# 166-37=129
-
-#info_time=os.stat(__file__)
-#a=time.localtime(info_time.st_mtime)
-#t=time.strftime('%Y-%m-%d %X',time.localtime(info_time.st_mtime))
-#print(t)
-#测试例子
-#a=AES('123.txt')
-#a.decrypt()
-#h=SHA1('pwd.txt',path='./')
-#h.verify()
-#r=RSA()
-#r.encrypt('pwd.txt')
-
-#d=Disi('pwd.txt',path='./entext/')
-#d.sign()
-#d.verify()
 
 
+def Create_AESkey():
+    """
+    随机AES密码,secrets这个库还有很多用处
+    只能用于程序初始化使用
+    """
+    if 'box.key' not in os.listdir('./'):
+        with open('box.key','w') as f:
+            pwd=str(secrets.token_urlsafe(nbytes=byes))
+            f.write(pwd)
+        return pwd
+    else:
+        pass
 
+
+def ha_hash(password,salt=salt):
+    """
+    :param password: 不一定是密码，也可以是其它的字符串
+    :param salt: 自定义盐，但从某种意义上说，这种固定盐不能称之为盐，依旧有很大的可能性被“撞上”
+    :return: 计算哈希值
+    """
+    data = password + salt
+    text=hashlib.sha256(data.encode("utf8"))
+    return text.hexdigest()
+
+
+class Zip(object):
+    """
+    打包文件夹,类似于Linux系统下的tar格式，只是打包为一个文件本身不压缩
+    """
+    def get(self,out_textname):
+        zi=os.path.join(zip_path,out_textname)
+        zipf = zipfile.ZipFile(zi, 'w')
+        for (root_name, dirs_name, files_name) in os.walk(text_path):
+            for filename in files_name:
+                pathfile = os.path.join(text_path, filename)
+                zipf.write(pathfile)
+            zipf.close()
+        t=time.strftime('%Y-%m-%d %X',time.localtime())
+        print("打包完成，当前时间为",t)
+
+    def lose(self, file_name):
+        text_path = os.path.join(zip_path,file_name)
+        unzip = zipfile.ZipFile(text_path, 'r')
+        for file in unzip.namelist():
+            unzip.extract(file, de_text_path)
+
+
+class enboxdb(object):
+    """
+    用于加密数据库，在使用前加密，使用中解密，使用完再加密
+    """
+    def __init__(self):
+        self.name='box.db'
+        self.en = os.path.join('./entext', self.name)
+        self.de = os.path.join('./detext', self.name)
+        with open('box.key', 'r',encoding='utf-8') as f:
+            key = f.readline()
+        self.aes = AES('box.db', key)
+
+    def endb(self):
+        self.aes.encrypt('./','./entext/')
+        shutil.copy(self.en,'./')
+        os.remove(self.en)
+
+    def dedb(self):
+        self.aes.decrypt('./', './detext')
+        shutil.copy(self.de, './')
+        os.remove(self.de)
