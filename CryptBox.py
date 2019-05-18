@@ -94,15 +94,18 @@ class Cryptbox(object):
 
 if __name__ == "__main__":
 
-    #cox = Cryptbox()
-    #cox.initialization('1', 'zg', '666666')
-    """
+    print('Welcome to CryptBox !\n'
+          'plese input your option')
+    cox = Cryptbox()  # 程序使用前初始化
     cox.initialization('1', 'zg', '666666')
-    rsa = cryptlib.RSA()
-    rsa.decrypt('box.key')
-    de_key=cox.use_login()
-    cox.Inspect(de_key)
-    """
+    print('1.将文件放入保险箱   2.取出文件')
+    x = input('请输入选项：')
+    if x == '1':
+        cox.initialization('1', 'zg', '666666')
+        rsa = cryptlib.RSA()
+        rsa.decrypt('box.key')
+        de_key = cox.use_login()
+        cox.Inspect(de_key)
     #with open('box.key','r',encoding='utf-8') as f:
     #    key=f.readline()
     #cox.open_box('1.txt',key=key)
