@@ -3,7 +3,7 @@ from config import *
 import cryptlib
 from dblib import Boxdb
 import addedlib
-import time
+
 
 class Cryptbox(object):
 
@@ -17,7 +17,6 @@ class Cryptbox(object):
         """
         程序运行初始化，文件夹、生成白名单和保险箱密钥及用户注册信息
         """
-        began_time=time.time()
         if not os.path.exists('box'):
             os.mkdir('box')
         if not os.path.exists('detext'):
@@ -37,7 +36,7 @@ class Cryptbox(object):
         b=Boxdb(table_name,sql_mode,sql_data,db_path)
         use=cryptlib.ha_hash(username,salt)         #计算哈希值
         pwd=cryptlib.ha_hash(password,salt)
-        with open('box.key', 'r', encoding='utf-8') as f:
+        with open('box.key', 'r') as f:
                 key=f.readline()
         Aes=cryptlib.ha_hash(key,salt)
         b.new_sql()
@@ -47,23 +46,15 @@ class Cryptbox(object):
         self.rsa.encrypt('box.key')
 
 
-    def use_login(self):
-        #返回的是从数据库里读取的AES密钥,但这个密钥是经过RSA算法加密后的，如要使用还需解密
-        db = cryptlib.enboxdb()
-        db.dedb()
-        b = Boxdb('box',sql_mode,sql_data,db_path)
-        db_aes=b.search_sql('AESkey')
-        li = []
-        li.append(str(db_aes))
-        l_key = ''.join(li).strip('[()]')
-        db_AESkey=l_key[:-1].strip("''")
-        return db_AESkey
+    def use_login(self,data):
+        #登录信息缓存
+        pass
 
-
-    def Inspect(self,db_AESkey):
+    def Inspect(self, db_AESkey):
         """
-        程序自检，检查1、是否存在box.key这是做个保险箱的钥匙
-        2、检查本地主板ID是否存在于白名单中
+        程序自检，检查：
+        1、是否存在box.key，这是做个保险箱的钥匙
+        2、检查本地主板ID是否存在于白名单中（主板ID用哈希值计算保存,非明文）
         """
         if 'box.key' not in os.listdir('./'):
             os._exit(1)
@@ -80,32 +71,44 @@ class Cryptbox(object):
                         return True
 
 
-    def open_box(self,text,key):
-        aes=cryptlib.AES(text,key)
-        aes.encrypt(text_path,en_text_path)
-        self.rsa.encrypt('box.key')
-
-    def close_box(self,text,key):
-        aes=cryptlib.AES(text,key)
-        aes.decrypt(en_text_path,de_text_path)
-        rsa=cryptlib.RSA()
-        rsa.decrypt('box.key')
-
-
 if __name__ == "__main__":
+    #验证机制分为三部即检测 box.key 和 box.db 与用户输入的密码是否相等
 
-    print('Welcome to CryptBox !\n'
-          'plese input your option')
     cox = Cryptbox()  # 程序使用前初始化
-    cox.initialization('1', 'zg', '666666')
-    print('1.将文件放入保险箱   2.取出文件')
-    x = input('请输入选项：')
-    if x == '1':
-        cox.initialization('1', 'zg', '666666')
-        rsa = cryptlib.RSA()
-        rsa.decrypt('box.key')
-        de_key = cox.use_login()
-        cox.Inspect(de_key)
-    #with open('box.key','r',encoding='utf-8') as f:
-    #    key=f.readline()
-    #cox.open_box('1.txt',key=key)
+    print('Welcome to CryptBox !\n')
+    if 'box.db' and 'box.key' not in os.listdir('./'):
+        print('请输入id、用户名及密码注册使用权信息：')
+        box_id=input('Id: ')
+        box_user=input('User: ')
+        box_Pwd=input('Password: ')
+        cox.initialization(box_id, box_user, box_Pwd)
+
+
+    else:
+        print('Plese input your Password!')
+        pwd=input('Password: ')
+        ha_pwd=cryptlib.ha_hash(pwd,salt)
+
+        def search(data):
+            cc = str(data).strip('[()]')
+            return cc[1:65]
+
+        with addedlib.Operaction() as e:
+            e.open()
+            x=Boxdb('box', sql_mode, sql_data, db_path)
+            dbpwd=x.search_sql('password')
+            dbkey=x.search_sql('AESkey')
+            with open('box.key','r') as f:
+                key=f.read()
+            ha_key=cryptlib.ha_hash(key,salt)       #验证的是box.key
+            e.close()
+
+        if search(dbpwd) != ha_pwd :
+            print('非法登录')
+        else:
+            print('登录成功')
+
+
+
+
+

