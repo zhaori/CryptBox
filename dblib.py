@@ -24,9 +24,9 @@ class Boxdb(object):
 
     def add_sql(self, id, username, password, AESkey):
         #增添数据
-        add_data = {'id':id,"user": username, "password": ha_hash(password), 'AESkey':AESkey}
+        add_data = {'id':id,"user": username, "password": password, 'AESkey':AESkey}
         with sqlite3.connect(self.dbpath) as con:
-            con.execute(self.sql,add_data) #1
+            con.execute(self.sql,add_data)
 
     def delete_sql(self, element):
         # 删除数据table,element
