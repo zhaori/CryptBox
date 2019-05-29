@@ -70,14 +70,26 @@ class Cryptbox(object):
                     else:
                         return True
 
+    def en_text(self, search_key):
+        li_entext = os.listdir(text_path)  # 加密box文件夹里所有文件
+        for i in li_entext:
+            text_aes = cryptlib.AES(i, search_key)
+            text_aes.encrypt(text_path, en_text_path)
+
+    def de_text(self):
+        li_detext = os.listdir(de_text_path)    #这个是解密文件夹
+        pass
 
 if __name__ == "__main__":
     # 验证机制分为三部即检测 box.key 和 box.db 与用户输入的密码是否相等
+    def search(data):
+        cc = str(data).strip('[()]')
+        return cc[1:65]
 
-    cox = Cryptbox()  # 程序使用前初始化
     print('Welcome to CryptBox !\n')
     if 'box.db' and 'box.key' not in os.listdir('./'):
         print('请输入id、用户名及密码注册使用权信息：')
+        cox = Cryptbox()  # 程序使用前初始化
         box_id = input('Id: ')
         box_user = input('User: ')
         box_Pwd = input('Password: ')
@@ -90,12 +102,6 @@ if __name__ == "__main__":
         ha_user = cryptlib.ha_hash(user, salt)
         ha_pwd = cryptlib.ha_hash(pwd, salt)
 
-
-        def search(data):
-            cc = str(data).strip('[()]')
-            return cc[1:65]
-
-
         with addedlib.Operaction() as e:
             e.open()
             x = Boxdb('box', sql_mode, sql_data, db_path)
@@ -107,17 +113,19 @@ if __name__ == "__main__":
             ha_key = cryptlib.ha_hash(key, salt)  # 验证的是box.key
             e.close()
 
-        if search(dbuser) != search(ha_user) and \
-                search(dbpwd) != ha_pwd:
-
+        if search(dbuser) != ha_user and \
+            search(dbpwd) != ha_pwd and \
+            search(dbkey) != ha_key:
             print('非法登录！')
         else:
             print('登录成功！\n请把需要加密的文件放入box文件夹里')
 
             with addedlib.Operaction() as f:
                 f.open()
-                if cox.Inspect(dbkey):
-                    print('True')
-                else:
-                    print('Fale')
+                if cox.Inspect(search(dbkey)):                  #程序自检
+                    cx = Cryptbox()
+                    xx = Boxdb('box', sql_mode, sql_data, db_path)
+                    dbkey = xx.search_sql('AESkey')
+                    cx.en_text(dbkey)
 
+                #f.close()
