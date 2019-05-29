@@ -3,6 +3,8 @@
   <component name="ProjectModuleManager">
     <modules>
       <module fileurl="file://$PROJECT_DIR$/.idea/CryptBox.iml" filepath="$PROJECT_DIR$/.idea/CryptBox.iml" />
+      <module fileurl="file://$PROJECT_DIR$/../QtGUI/.idea/QtGUI.iml" filepath="$PROJECT_DIR$/../QtGUI/.idea/QtGUI.iml" />
+      <module fileurl="file://$PROJECT_DIR$/../测试代码/.idea/测试代码.iml" filepath="$PROJECT_DIR$/../测试代码/.idea/测试代码.iml" />
     </modules>
   </component>
 </project>
