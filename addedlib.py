@@ -52,7 +52,15 @@ class Attribute(object):
         # st_atime(访问时间), st_mtime(修改时间), st_ctime（创建时间)
         suffer = os.path.join(path, name)
         statinfo = os.stat(suffer)
-        return time.strftime('%Y.%m.%d.%X', time.localtime(statinfo.st_mtime))
+        ctime = time.strftime('%Y.%m.%d.%X', time.localtime(statinfo.st_ctime))
+        atime = time.strftime('%Y.%m.%d.%X', time.localtime(statinfo.st_atime))
+        mtime = time.strftime('%Y.%m.%d.%X', time.localtime(statinfo.st_mtime))
+        return {
+                '创建时间':ctime,
+                '访问时间':atime,
+                '修改时间':mtime
+                }
+
 
 
 class Destroy(object):
@@ -125,7 +133,7 @@ class Whitelists(object):
         return li
 
 
-# 新建一个上下文管理器，这里处理的是有关处理数据库安全的措施，执行了一个打开关闭的动作（即解密再加密）
+# 新建一个上下文管理器，这里是有关处理数据库安全的措施，执行了一个打开关闭的动作（即解密再加密）
 class Operaction():
 
     def __enter__(self):
@@ -147,5 +155,4 @@ class Operaction():
 
     def __exit__(self, exc_type, exc_val, exc_tb):
         return True
-
 # 113
