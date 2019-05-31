@@ -2,11 +2,8 @@
 简单地写了个关于sqlite数据库的增删查三种方法，有关表的创建，数据的插入配置均在
 config.py文件里
 """
-
 import sqlite3
-
 from cryptlib import ha_hash
-
 
 class Boxdb(object):
 
