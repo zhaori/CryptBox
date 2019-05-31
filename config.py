@@ -57,7 +57,7 @@ email_port = "465"
 # 发件邮箱
 email_from = "1471584500@qq.com"
 
-# 发件邮箱密码(授权码)不是邮箱密码哈
+# 发件邮箱密码(授权码)不是邮箱密码
 email_pwd = "lvaqtvpmpcnmgfah"
 
 # 收件邮箱
@@ -69,9 +69,10 @@ subject = "安全提醒"
 # 邮件内容
 content = '''
     <center>
-        <span style="font-size:30px;color:black">请你出去，你这个Python假粉丝</span>
+        <span style="font-size:30px;color:black">警告：程序非法使用</span>
     </center>            
 '''
 
 # 删除目录
 path = r'D:/测试文件夹'
+#33

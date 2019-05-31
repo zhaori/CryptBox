@@ -3,13 +3,15 @@
 无论是AES还是RSA等等，都是只拥有加密、解密两种相反的方法
 
 """
+import hashlib
 import os
-import rsa
+import secrets  # 注意这个Python自带的标准库不支持Python2.7
+import shutil
 import time
 import zipfile
-import secrets  # 注意这个Python自带的标准库不支持Python2.7
-import hashlib
-import shutil
+
+import rsa
+
 from config import *
 
 
@@ -93,7 +95,8 @@ class SHA3(object):
 
 class RSA(object):
     """
-     非对称加密类,同样拥有加密解密的方法，公钥私钥是保存在key里的注意私钥的安全
+     非对称加密类,同样拥有加密解密的方法，公钥私钥是保存在key文件夹里的
+     一定要注意私钥的安全
     """
 
     def encrypt(self, name):
@@ -101,10 +104,13 @@ class RSA(object):
         (pubkey, privkey) = rsa.newkeys(2048)
         with open("./key/pubkey.key", "w+") as f1:
             f1.write(pubkey.save_pkcs1().decode())  # 公钥
+
         with open("./key/privkey.key", "w+") as f2:
             f2.write(privkey.save_pkcs1().decode())  # 私钥
+
         with open(name, "r+") as f3:
             message = f3.read()
+
         rsa_key_text = rsa.encrypt(message.encode(), pubkey)
         key_file = os.path.join('./entext/', name)
         with open(key_file, "wb") as f4:
@@ -112,29 +118,18 @@ class RSA(object):
         shutil.copy(key_file, './')
         os.remove(key_file)
 
-    """
-        else:
-            with open(name, "r+") as f3:
-                message2 = f3.read()
-            with open("./key/pubkey.key", "r") as f:
-                pubkey_ = rsa.PrivateKey.load_pkcs1(f.read().encode())
-            rsa_key=rsa.encrypt(message2.encode(),pubkey_)
-            key_file = os.path.join('./entext/', name)
-            with open(key_file, "wb") as f4:
-                f4.write(rsa_key)
-            shutil.copy(key_file, './')
-            os.remove(key_file)
-    """
-
     def decrypt(self, name):
         with open("./key/privkey.key", "r") as f2:
             priv_key = rsa.PrivateKey.load_pkcs1(f2.read().encode())
+
         with open(name, "rb") as f3:
             mge = f3.read()
+
         un_rsa_key = rsa.decrypt(mge, priv_key).decode()
         key_file = os.path.join('./entext/', name)
         with open(key_file, "w+") as f4:
             f4.write(un_rsa_key)
+
         shutil.copy(key_file, './')
         os.remove(key_file)
 
@@ -184,8 +179,8 @@ class Disi(object):
 
 def Create_AESkey():
     """
-    随机AES密码,secrets这个库还有很多用处
-    只能用于程序初始化使用
+    随机AES密码,secrets这个库还有很多用处......
+    用于程序初始化使用
     """
     if 'box.key' not in os.listdir('./'):
         with open('box.key', 'w') as f:
@@ -252,3 +247,5 @@ class enboxdb(object):
         self.aes.decrypt('./', './detext')
         shutil.copy(self.de, './')
         os.remove(self.de)
+
+# 168+150+113
