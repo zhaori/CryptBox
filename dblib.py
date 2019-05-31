@@ -43,10 +43,3 @@ class Boxdb(object):
         return all_table
 # 37
 
-# if __name__=="__main__":
-#
-#    d=Boxdb()
-#    d.new_data()
-# d.add_sql('1','zzg','666666')
-# d.search_sql('user')
-# d.delete_sql('id=1')
