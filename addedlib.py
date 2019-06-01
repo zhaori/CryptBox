@@ -55,13 +55,13 @@ class Attribute(object):
         ctime = time.strftime('%Y.%m.%d.%X', time.localtime(statinfo.st_ctime))
         atime = time.strftime('%Y.%m.%d.%X', time.localtime(statinfo.st_atime))
         mtime = time.strftime('%Y.%m.%d.%X', time.localtime(statinfo.st_mtime))
+        nowtime = time.strftime('%Y.%m.%d.%X', time.localtime(time.time()))
         return {
+                '监控时间': nowtime,
                 '创建时间':ctime,
                 '访问时间':atime,
                 '修改时间':mtime
                 }
-
-
 
 class Destroy(object):
     # 附加负面效果属性类,谨慎使用的类，易诱发不良后果，特别是第一个方法不是仇人就不要乱搞
