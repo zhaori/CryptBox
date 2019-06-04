@@ -1,5 +1,5 @@
 import os
-
+import time
 import addedlib
 import cryptlib
 from config import *
@@ -46,9 +46,6 @@ class Cryptbox(object):
         db.endb()  # 加密数据库
         self.rsa.encrypt('box.key')
 
-    def use_login(self, data):
-        # 登录信息缓存
-        pass
 
     def Inspect(self, db_AESkey):
         """
@@ -85,6 +82,10 @@ class Cryptbox(object):
             text_aes = cryptlib.AES(i, search_key)
             text_aes.decrypt(en_text_path, de_text_path)
 
+    def cal_sha(self):
+        ha=cryptlib.SHA3('box.db','./')
+        ha.cal()
+
 
 if __name__ == "__main__":
     # 验证机制分为三部即检测 box.key 和 box.db 与用户输入的密码是否相等
@@ -92,8 +93,8 @@ if __name__ == "__main__":
         cc = str(data).strip('[()]')
         return cc[1:65]
 
-
     print('Welcome to CryptBox !\n')
+    os.system('python monitoring.py')
     if 'box.db' and 'box.key' not in os.listdir('./'):
         print('请输入id、用户名及密码注册使用权信息：')
         cox = Cryptbox()  # 程序使用前初始化
@@ -128,6 +129,7 @@ if __name__ == "__main__":
         else:
             print('登录成功！\n使用前请把需要加密的文件放入box文件夹里')
             iputs = input('输入选项：1.存储文件  2.取出文件')
+
             if iputs == '1':
                 with addedlib.Operaction() as f:
                     f.open()

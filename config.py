@@ -42,7 +42,7 @@ sql_data = """insert into box
 # salt即盐值，可自定义
 # 数据库存储密码
 
-salt = ""
+salt = "666666"
 
 # 邮箱配置参数信息
 # QQ接收邮件服务器：pop.qq.com,995
@@ -55,13 +55,14 @@ email_id = "smtp.qq.com"
 email_port = "465"
 
 # 发件邮箱
-email_from = ""
+email_from = "1471584500@qq.com"
 
-# 发件邮箱密码(授权码)不是邮箱密码
-email_pwd = ""
+# 发件邮箱密码(授权码)不是邮箱密码,确保邮箱开启了对应的服务如POP3/SMTP、IMAP/SMTP
+#对应的介绍网页链接 https://service.mail.qq.com/cgi-bin/help?subtype=1&&id=28&&no=331
+email_pwd = "pvqmzbeaaqcuhiee"
 
 # 收件邮箱
-email_to = ""
+email_to = "2134034899@qq.com"
 
 # 邮件主题
 subject = "安全提醒"

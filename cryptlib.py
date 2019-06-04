@@ -4,6 +4,7 @@
 
 """
 import hashlib
+import logging
 import os
 import secrets  # 注意这个Python自带的标准库不支持Python2.7
 import shutil
@@ -29,15 +30,19 @@ class AES(object):
         # TEXT是原文件
         path = os.path.join(in_path, self.text)
         out_path = os.path.join(on_path, self.text)
-        os.system("openssl enc -aes-256-cbc -e -in %s -out %s -pass pass:%s"
-                  % (path, out_path, self.password))
-        if del_text == 0:
-            try:
-                os.remove(path)  # 删除源文件
-            except FileNotFoundError:
+        try:
+            os.system("openssl enc -aes-256-cbc -e -in %s -out %s -pass pass:%s"
+                      % (path, out_path, self.password))
+        except:
+            logging.exception('Windows用户请手动安装openssl')
+        finally:
+            if del_text == 0:
+                try:
+                    os.remove(path)  # 删除源文件
+                except FileNotFoundError:
+                    pass
+            elif del_text == 1:
                 pass
-        elif del_text == 1:
-            pass
 
     def decrypt(self, in_path, on_path):
         # 对称解密
