@@ -1,7 +1,8 @@
 import os
-from lib import addedlib, cryptlib
-from lib.config import *
-from lib.dblib import Boxdb
+import addedlib
+import cryptlib
+from config import *
+from dblib import Boxdb
 
 
 class Cryptbox(object):
