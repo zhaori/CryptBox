@@ -1,9 +1,7 @@
 import os
-import time
-import addedlib
-import cryptlib
-from config import *
-from dblib import Boxdb
+from lib import addedlib, cryptlib
+from lib.config import *
+from lib.dblib import Boxdb
 
 
 class Cryptbox(object):
@@ -83,7 +81,7 @@ class Cryptbox(object):
             text_aes.decrypt(en_text_path, de_text_path)
 
     def cal_sha(self):
-        ha=cryptlib.SHA3('box.db','./')
+        ha= cryptlib.SHA3('box.db', './')
         ha.cal()
 
 
