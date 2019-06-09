@@ -67,7 +67,7 @@ email_to = "2134034899@qq.com"
 # 邮件主题
 subject = "安全提醒"
 
-# 邮件内容
+# 邮件内容,支持HTML
 content = '''
     <center>
         <span style="font-size:30px;color:black">警告：程序非法使用</span>
@@ -76,4 +76,7 @@ content = '''
 
 # 删除目录
 path = r'D:/测试文件夹'
+
+#自定义日志大小
+filesize = 2048
 #33
