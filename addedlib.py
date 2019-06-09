@@ -162,7 +162,7 @@ class Operaction():
     def __exit__(self, exc_type, exc_val, exc_tb):
         return True
 
-def getfileSize(path, name):
+def getfileSize(name, path='./'):
     #用于文件监控，防止日志文件占用过多
     file=os.path.join(path, name)
     try:
