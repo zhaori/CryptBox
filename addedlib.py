@@ -10,9 +10,7 @@ import hashlib
 import cryptlib
 from email.mime.text import MIMEText
 from lxml import etree, objectify
-from config import email_id, \
-    email_port, email_to, email_pwd, \
-    email_from, content, subject, path
+from config import *
 
 
 class Attribute(object):
