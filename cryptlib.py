@@ -71,19 +71,19 @@ class SHA3(object):
 
     def cal(self):
         filename_file = os.path.join(self.path, self.filename)
-        save_path = os.path.join(en_text_path, self.filename + 'sha3')
-        with open(filename_file, 'r') as f:
+        save_path = os.path.join(self.path, self.filename + 'sha3')
+        with open(filename_file, 'rb') as f:
             hexdig = hashlib.sha3_256(str(f.read()).encode('utf8'))
         with open(save_path, 'w') as f:
             f.write(hexdig.hexdigest())
 
-        print("SHA3计算完成，当前时间为：", (time.strftime('%Y-%m-%d %X', time.localtime())))
+        print(self.filename,"count successful! now time is ：", (time.strftime('%Y-%m-%d %X', time.localtime())))
 
     # 验证sha
     def verify(self):
-        filename_file = os.path.join(en_text_path, self.filename + '.sha3')
+        filename_file = os.path.join(self.path, self.filename + '.sha3')
         flien = os.path.join(self.path, self.filename)
-        with open(flien, 'r') as f:
+        with open(flien, 'rb') as f:
             hexig = hashlib.sha3_256(str(f.read()).encode('utf8'))
             b = hexig.hexdigest()
         with open(filename_file, "r", encoding='utf-8') as f:
@@ -139,7 +139,7 @@ class RSA(object):
         os.remove(key_file)
 
 
-class Disi(object):
+class Signature(object):
     """
     这是数字签名类，sign是签名，verify是验证，使用前必须保证文件已经加密结束
     私钥签名，公钥验证
@@ -148,17 +148,21 @@ class Disi(object):
     def __init__(self, name, path):
 
         self.path = path
-        self.name = os.path.join(self.path, name + '.sha3')  # sha1文件名
-        self.sha = os.path.join(self.path, name + ".sign")  # 数字签名后保存的文件名
+        self.name = os.path.join(self.path, name + '.sha3')  # sha文件名
+        self.sha = os.path.join(self.path, name + ".sign")  # 数字签名后保存的签名文件名
 
     def sign(self):
         # 签名
         privkey = './key/privkey.key'  # 私钥
-        with open(privkey, "r")as f1:
-            priv_key = rsa.PrivateKey.load_pkcs1(f1.read().encode())
+        try:
+            with open(privkey, "r")as f1:
+                priv_key = rsa.PrivateKey.load_pkcs1(f1.read().encode())
 
-        with open(self.name, 'r') as f:
-            mess = f.read()
+            with open(self.name, 'r') as f:
+                mess = f.read()
+        except Exception as e:
+            print(e)
+            return False
 
         reslut = rsa.sign(mess.encode(), priv_key, 'SHA-1')
         with open(self.sha, 'wb') as f:
@@ -193,7 +197,7 @@ def Create_AESkey():
             f.write(pwd)
         return pwd
     else:
-        pass
+        return False
 
 
 def ha_hash(password, salt=salt):
@@ -207,9 +211,9 @@ def ha_hash(password, salt=salt):
     return text.hexdigest()
 
 
-class Zip(object):
+class Wintar(object):
     """
-    打包文件夹,类似于Linux系统下的tar格式，只是打包为一个文件本身不压缩
+    打包文件夹,类似于Linux系统下的tar格式，只是打包归纳为一个文件，本身不压缩
     """
 
     def get(self, out_textname):
