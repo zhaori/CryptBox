@@ -7,6 +7,7 @@ import time
 import shutil
 import smtplib
 import hashlib
+import paramiko
 import cryptlib
 from email.mime.text import MIMEText
 from lxml import etree, objectify
@@ -20,7 +21,7 @@ class Attribute(object):
         self.e_pwd = email_pwd
         self.e_to = email_to
         self.port = email_port
-        self.e_id = email_id
+        self.e_url = email_url
 
     def emil_min(self):
         # 邮件内容支持HTM格式
@@ -29,7 +30,7 @@ class Attribute(object):
         Email['From'] = self.e_from
         Email['To'] = self.e_to
         try:
-            s = smtplib.SMTP_SSL(self.e_id, self.port)  # 邮件服务器及端口号
+            s = smtplib.SMTP_SSL(self.e_url, self.port)  # 邮件服务器及端口号
             s.login(self.e_from, self.e_pwd)
             s.sendmail(self.e_from, self.e_to, Email.as_string())
             s.quit()
@@ -169,4 +170,58 @@ def getfileSize(name, path='./'):
             return size
     except Exception as e:
         print(e)
-# 113
+
+
+def down_f(text):
+    transport = paramiko.Transport(host_name, 1211)
+    transport.connect(username=user_name, password=pass_word)
+    sftp = paramiko.SFTPClient.from_transport(transport)
+    linux_file = r"/home/zzg/up_text/" + text
+    win_file = down_file + text
+    sftp.get(linux_file, win_file)
+    print("OK，备份文件下载成功！")
+
+class SSH(object):
+
+    def up(self, host_name):
+        os.chdir(r"./")
+        transport = paramiko.Transport(host_name, 1211)
+        transport.connect(username=user_name, password=pass_word)
+        sftp = paramiko.SFTPClient.from_transport(transport)
+        for (root_name, dirs_name, files_name) in os.walk(zip_file):
+            for i in files_name:
+                Win_file = zip_file + i
+                Linux_file = "/home/zzg/up_text/" + i
+                sftp.put(Win_file, Linux_file)
+        print("上传完成，当前时间为：", (time.strftime('%Y-%m-%d %X', time.localtime())))
+
+    def down(self, text, all):  # 0为下载备份文件与 与之对应的MD5  #1为只下载文件
+        if all == 0:
+            try:
+                down_f(text=text)
+            except Exception as d:
+                with open(error + "down.err", "w", encoding="utf-8") as b:
+                    b.write(str(d))
+            transport = paramiko.Transport(host_name, 1211)
+            transport.connect(username=user_name, password=pass_word)
+            sftp2 = paramiko.SFTPClient.from_transport(transport)
+            linux_file2 = r"/home/zzg/up_text/" + text + ".md5"
+            win_file2 = down_file + text + ".md5"
+            sftp2.get(linux_file2, win_file2)
+            print("OK，MD5值下载成功！")
+
+        elif all == 1:
+            down_f(text=text)
+
+    def search(self):
+        ssh = paramiko.SSHClient()
+        ssh.set_missing_host_key_policy(paramiko.AutoAddPolicy())
+        ssh.connect(host_name, username=user_name, password=pass_word)
+        stdin, stdout, stderr = ssh.exec_command("ls /home/zzg/up_text/")
+        backups_file = stdout.readlines()
+        ssh.close()
+        li = []
+        for f in backups_file:
+            a = f.rstrip("\n")
+            li.append(a)
+        print(li)
