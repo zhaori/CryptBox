@@ -7,6 +7,7 @@ import threading
 import time
 import addedlib
 
+
 def get_hash(dbname):
     db = os.popen('openssl dgst -sha1 ' + dbname)
     db_sha1 = db.read()
@@ -41,21 +42,21 @@ def back():
 def thead_box_db_hash():
     fd = addedlib.Attribute()
     boxdb_log = fd.control('./', 'box.db')
-    with open('boxdb.log', 'a+', encoding='utf-8') as f1:
+    with open('./Log/boxdb.log', 'a+', encoding='utf-8') as f1:
         f1.write(str(boxdb_log) + '\n')
         time.sleep(0.1)
 
 def thead_box_key_hash():
     fd = addedlib.Attribute()
     boxkey_log = fd.control('./', 'box.key')
-    with open('boxkey.log', 'a+', encoding='utf-8') as f1:
+    with open('./Log/boxkey.log', 'a+', encoding='utf-8') as f1:
         f1.write(str(boxkey_log) + '\n')
         time.sleep(0.1)
 
 def thead_whitelist_hash():
     fd = addedlib.Attribute()
     whitelist_log = fd.control('./', 'Whitelist.xml')
-    with open('whitelist.log', 'a+', encoding='utf-8') as f2:
+    with open('./Log/whitelist.log', 'a+', encoding='utf-8') as f2:
         f2.write(str(whitelist_log) + '\n')
         time.sleep(0.1)
 
@@ -64,39 +65,36 @@ def thead_1():  # box.db
     while 1:
         box_db_hash, whitelist_hash, box_key_hash = back()
         if box_db_hash != str(get_hash('box.db')):
-            print('线程1')
             thead1 = threading.Thread(target=thead_box_db_hash, )
             thead1.start()
             thead1.join()
             time.sleep(1)
         else:
-            print('没问题1')
+            return False
 
 
 def thead_2():  # box.key
     while 1:
         box_db_hash, whitelist_hash, box_key_hash = back()
         if box_key_hash != str(get_hash('box.key')):
-            print('线程2')
             thead2 = threading.Thread(target=thead_box_key_hash, )
             thead2.start()
             thead2.join()
             time.sleep(1)
         else:
-            print('没问题2')
+            return False
 
 
 def thead_3():  # whitelist.xml
     while 1:
         box_db_hash, whitelist_hash, box_key_hash = back()
         if whitelist_hash != str(get_hash('Whitelist.xml')):
-            print('线程3')
             thead3 = threading.Thread(target=thead_whitelist_hash, )
             thead3.start()
             thead3.join()
             time.sleep(1)
         else:
-            print('没问题3')
+            return False
 
 
 if __name__ == '__main__':
@@ -109,9 +107,9 @@ if __name__ == '__main__':
         for i in thead_list:
             at = threading.Thread(target=i, )
             at.start()
-            theads.append(at)
+            theads.append(at)       #添加到线程队列
 
         for i in theads:
             i.join()
     else:
-        print('Error')
+        print('error')
