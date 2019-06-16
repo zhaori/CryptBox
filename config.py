@@ -49,34 +49,45 @@ salt = "666666"
 # 发送邮件服务器：smtp.qq.com,465、587
 
 # 服务器地址
-email_id = "smtp.qq.com"
+email_url = "smtp.qq.com"
 
 # 服务器端口
 email_port = "465"
 
 # 发件邮箱
-email_from = "1471584500@qq.com"
+email_from = ""
 
 # 发件邮箱密码(授权码)不是邮箱密码,确保邮箱开启了对应的服务如POP3/SMTP、IMAP/SMTP
 #对应的介绍网页链接 https://service.mail.qq.com/cgi-bin/help?subtype=1&&id=28&&no=331
-email_pwd = "pvqmzbeaaqcuhiee"
+email_pwd = ""
 
 # 收件邮箱
-email_to = "2134034899@qq.com"
+email_to = ""
 
 # 邮件主题
-subject = "安全提醒"
+subject = ""
 
 # 邮件内容,支持HTML
 content = '''
     <center>
-        <span style="font-size:30px;color:black">警告：程序非法使用</span>
+        <span style="font-size:30px;color:yellow"> </span>
     </center>            
 '''
 
 # 删除目录
 path = r'D:/测试文件夹'
 
-#自定义日志大小
+# 自定义日志大小
 filesize = 2048
-#33
+
+#SSH连接配置信息
+host_name =''
+user_name =''
+pass_word =''
+down_file =''
+zip_file =''
+error = ''
+port= 22 #建议修改端口号，SSH协议的默认端口是22
+win_path = ''
+linux_path = ''
+search_path = '' #远程查找文件目录路径

@@ -173,37 +173,42 @@ def getfileSize(name, path='./'):
 
 
 def down_f(text):
-    transport = paramiko.Transport(host_name, 1211)
-    transport.connect(username=user_name, password=pass_word)
+    transport = paramiko.Transport(host_name, port)
+    transport.connect(user_name, pass_word)
     sftp = paramiko.SFTPClient.from_transport(transport)
     linux_file = r"/home/zzg/up_text/" + text
     win_file = down_file + text
     sftp.get(linux_file, win_file)
     print("OK，备份文件下载成功！")
 
-class SSH(object):
+class MySSH(object):
+
+    def __init__(self):
+        os.chdir(r"./")
+        self.user = user_name
+        self.pwd = pass_word
+        self.port = port
 
     def up(self, host_name):
-        os.chdir(r"./")
-        transport = paramiko.Transport(host_name, 1211)
-        transport.connect(username=user_name, password=pass_word)
+        transport = paramiko.Transport(host_name, self.port)
+        transport.connect(self.user, self.pwd)
         sftp = paramiko.SFTPClient.from_transport(transport)
         for (root_name, dirs_name, files_name) in os.walk(zip_file):
             for i in files_name:
-                Win_file = zip_file + i
-                Linux_file = "/home/zzg/up_text/" + i
+                Win_file = os.path.join(zip_file, i)
+                Linux_file = os.path.join(linux_path, i)
                 sftp.put(Win_file, Linux_file)
         print("上传完成，当前时间为：", (time.strftime('%Y-%m-%d %X', time.localtime())))
 
     def down(self, text, all):  # 0为下载备份文件与 与之对应的MD5  #1为只下载文件
-        if all == 0:
+        if ll == 0:
             try:
                 down_f(text=text)
             except Exception as d:
                 with open(error + "down.err", "w", encoding="utf-8") as b:
                     b.write(str(d))
-            transport = paramiko.Transport(host_name, 1211)
-            transport.connect(username=user_name, password=pass_word)
+            transport = paramiko.Transport(host_name, port)
+            transport.connect(self.user, self.pwd)
             sftp2 = paramiko.SFTPClient.from_transport(transport)
             linux_file2 = r"/home/zzg/up_text/" + text + ".md5"
             win_file2 = down_file + text + ".md5"
@@ -216,8 +221,8 @@ class SSH(object):
     def search(self):
         ssh = paramiko.SSHClient()
         ssh.set_missing_host_key_policy(paramiko.AutoAddPolicy())
-        ssh.connect(host_name, username=user_name, password=pass_word)
-        stdin, stdout, stderr = ssh.exec_command("ls /home/zzg/up_text/")
+        ssh.connect(host_name, self.user, self.pwd)
+        stdin, stdout, stderr = ssh.exec_command("ls "+search_path)
         backups_file = stdout.readlines()
         ssh.close()
         li = []
